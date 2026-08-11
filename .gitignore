@@ -1,0 +1,22 @@
+# Node/Vite build output
+frontend/dist/
+frontend/node_modules/
+
+# Python cache & build directories
+__pycache__/
+*.pyc
+build_tmp/
+build/
+dist_exe/
+*.spec
+
+# Local data cache & databases
+backend/data/
+data_cache/
+exports/
+*.db
+config.json
+
+# Environment variables
+.env
+.env.local
