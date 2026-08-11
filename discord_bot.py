@@ -328,8 +328,32 @@ if __name__ == "__main__":
             config["token"] = token
             save_config(config)
 
+    # Start a tiny HTTP server in a background thread to satisfy Render's health checks
+    # on the Free Web Service tier ($0/month)
+    if os.environ.get("PORT"):
+        import threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+        
+        class HealthCheckHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-type", "text/plain")
+                self.end_headers()
+                self.wfile.write(b"OK")
+            def log_message(self, format, *args):
+                pass # suppress logs to keep console clean
+
+        def run_health_server():
+            port = int(os.environ.get("PORT", 8080))
+            server = HTTPServer(("", port), HealthCheckHandler)
+            print(f"Running health check server on port {port}...")
+            server.serve_forever()
+
+        threading.Thread(target=run_health_server, daemon=True).start()
+
     if token:
         try:
             bot.run(token)
         except Exception as e:
             print(f"Error starting bot: {e}")
+
